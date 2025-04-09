@@ -1,1 +1,3 @@
-# EE488
+# EE488 Introduction to Cryptography Engineering
+
+This course introduces basic concepts in cryptography and discusses both its theoretical foundations and practical applications. Various threats, attacks and countermeasures including cryptosystems, cryptographic protocols and some of secure systems/networks will be addressed. The course will cover: brief history of cryptography, encryption (conventional and public key), digital signatures, hash functions, message authentication codes, identification, authentication, and their applications. As a case study, we will take a look at various aspects of cryptocurrency including Bitcoin, Etherium and other Alt Coins. Students who take this course 1) will be able to pursue research in security and cryptography and 2) will be able to use cryptographic primitives securely when they work after finishing their degree program. 
