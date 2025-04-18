@@ -31,11 +31,14 @@ public class HashGraphAnalyzer {
         }  
 
         // Takes a numberical value and hashes it, then gives back the a numerical value of the k LSB
-        public long getDigest(long num){
-            byte[] inputBytes = ByteBuffer.allocate(Long.BYTES).putLong(num).array();
+        public int getDigest(int num){
+            byte[] inputBytes = new byte[] {
+                (byte)((num >>> 8) & 0xFF),  // the high 8 bits
+                (byte)( num & 0xFF)   // the low 8 bits
+            };
             byte[] digest = this.md.digest(inputBytes);
 
-            long result = 0;
+            int result = 0;
             for (int i = digest.length - numBytes; i < digest.length; i++) {
                 result = (result << 8) | (digest[i] & 0xFF);
             }
@@ -100,9 +103,7 @@ public class HashGraphAnalyzer {
 
         // Tail lengths from terminal nodes only
         for (int x = 0; x < N; x++) {
-            if (inDeg[x] == 0) {
-                tailLengths.add(findTailLength(md5, x));
-            }
+            tailLengths.add(findTailLength(md5, x));
         }
 
         // Cycle lengths: one per component root
@@ -117,9 +118,9 @@ public class HashGraphAnalyzer {
         printStats(uf.count());
     }
 
-    static int findTailLength(cHash h, long start) {
-        long tortoise = h.getDigest(start);
-        long hare = h.getDigest(h.getDigest(start));
+    static int findTailLength(cHash h, int start) {
+        int tortoise = h.getDigest(start);
+        int hare = h.getDigest(h.getDigest(start));
 
         // Floyd's Cycle Detection
         while (tortoise != hare) {
@@ -138,9 +139,9 @@ public class HashGraphAnalyzer {
         return mu;
     }
 
-    static int findCycleLength(cHash h, long start) {
-        long tortoise = h.getDigest(start);
-        long hare = h.getDigest(h.getDigest(start));
+    static int findCycleLength(cHash h, int start) {
+        int tortoise = h.getDigest(start);
+        int hare = h.getDigest(h.getDigest(start));
 
         while (tortoise != hare) {
             tortoise = h.getDigest(tortoise);
