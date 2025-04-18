@@ -1,4 +1,5 @@
 hashCollision/HashGraphAnalyzer.class
 hashCollision/HashGraphAnalyzer$cHash.class
 hashCollision/HashGraphAnalyzer$NodeInfo.class
+hashCollision/HashGraphAnalyzer$UnionFind.class
 .vscode
