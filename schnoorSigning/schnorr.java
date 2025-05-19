@@ -1,5 +1,7 @@
 package schnoorSigning;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -49,27 +51,37 @@ public class schnorr {
         y = g.modPow(x, p);
     }
 
-    public Signature sign(String message) {
+    public Signature sign(String message) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(); // To concatenate m and r
+        byte[] mBytes = message.getBytes(StandardCharsets.UTF_8);
+
         BigInteger k = new BigInteger(q.bitLength() - 1, random); // h < 2^(N) =< q
-        BigInteger r = g.modPow(k, p);
-        BigInteger e = hashToBigInt(message + r.toString(), q.bitLength());
+        byte[] rBytes = g.modPow(k, p).toByteArray();
+        out.write(mBytes);
+        out.write(rBytes); 
+        BigInteger e = hashToBigInt(out.toByteArray(), q.bitLength());
         BigInteger s = k.add(x.multiply(e)).mod(q);
         return new Signature(s, e);
     }
 
-    public boolean verify(String message, Signature sig) {
+    public boolean verify(String message, Signature sig) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(); // To concatenate m and v
+        byte[] mBytes = message.getBytes(StandardCharsets.UTF_8);
+
         BigInteger s = sig.s;
         BigInteger e = sig.e;
         BigInteger yPowE = y.modPow(e, p).modInverse(p);
-        BigInteger v = g.modPow(s, p).multiply(yPowE).mod(p);
-        BigInteger ePrime = hashToBigInt(message + v.toString(), q.bitLength());
+        byte[] vBytes = g.modPow(s, p).multiply(yPowE).mod(p).toByteArray();
+        out.write(mBytes);
+        out.write(vBytes); 
+        BigInteger ePrime = hashToBigInt(out.toByteArray(), q.bitLength());
         return e.equals(ePrime);
     }
 
-    private BigInteger hashToBigInt(String input, int bits) {
+    private BigInteger hashToBigInt(byte[] input, int bits) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            byte[] hash = digest.digest(input);
             int byteLen = (bits + 7) / 8; // Round up to closest byte to store all bits
             byte[] truncated = Arrays.copyOfRange(hash, 0, byteLen);
             return new BigInteger(1, truncated).mod(BigInteger.ONE.shiftLeft(bits)); // Get N MSB of the digest
@@ -78,19 +90,21 @@ public class schnorr {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         schnorr schnorr = new schnorr();
         schnorr.generateKeys();
 
         String message = "hello world";
+        
         long startTime = System.nanoTime();
         Signature sig = schnorr.sign(message);
         double runtime = (System.nanoTime() - startTime)/1_000_000_000.0;
+        
         System.out.println("Message: " + message);
         System.out.println("Signature s: " + sig.s);
         System.out.println("Signature e: " + sig.e);
         System.out.println("Verification: " + schnorr.verify(message, sig));
-        System.out.println("Runtime for signing: " + runtime + "s");
+        System.out.println("Runtime for signing and verifying: " + runtime + "s");
     }
 }
