@@ -3,3 +3,5 @@ hashCollision/HashGraphAnalyzer$cHash.class
 hashCollision/HashGraphAnalyzer$NodeInfo.class
 hashCollision/HashGraphAnalyzer$UnionFind.class
 .vscode
+schnorrSigning/Schnorr.class
+schnorrSigning/Signature.class

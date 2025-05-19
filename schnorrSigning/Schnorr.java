@@ -1,4 +1,4 @@
-package schnoorSigning;
+package schnorrSigning;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,7 +18,7 @@ class Signature {
     }
 }
 
-public class schnorr {
+public class Schnorr {
     private BigInteger p, q, g; // Public parameters
     private BigInteger x, y;    // Private key x, Public key y
     private SecureRandom random = new SecureRandom();
@@ -147,7 +147,7 @@ public class schnorr {
 
     public static void main(String[] args) throws IOException {
 
-        schnorr schnorr = new schnorr();
+        Schnorr schnorr = new Schnorr();
         schnorr.generateKeys();
 
         String message = "hello world";
