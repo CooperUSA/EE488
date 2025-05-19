@@ -33,12 +33,12 @@ public class schnorr {
         // Find a generator g
         BigInteger h, gCandidate;
         do {
-            h = new BigInteger(p.bitLength()-1, random);
+            h = new BigInteger(p.bitLength()-1, random); // h < 2^(L) =< p
             gCandidate = h.modPow((p.subtract(BigInteger.ONE)).divide(q), p); // g = h^r mod p
         } while (
             gCandidate.equals(BigInteger.ONE) || 
             h.compareTo(BigInteger.TWO) < 0 || // Ensure 1 < h 
-            h.compareTo(p.subtract(BigInteger.TWO)) > 0 // h < p - 1
+            h.compareTo(p.subtract(BigInteger.ONE)) > 0 // h < p - 1
         ); 
         g = gCandidate;
 
@@ -50,7 +50,7 @@ public class schnorr {
     }
 
     public Signature sign(String message) {
-        BigInteger k = new BigInteger(q.bitLength() - 1, random);
+        BigInteger k = new BigInteger(q.bitLength() - 1, random); // h < 2^(N) =< q
         BigInteger r = g.modPow(k, p);
         BigInteger e = hashToBigInt(message + r.toString(), q.bitLength());
         BigInteger s = k.add(x.multiply(e)).mod(q);
@@ -70,9 +70,9 @@ public class schnorr {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-            int byteLen = (bits + 7) / 8;
+            int byteLen = (bits + 7) / 8; // Round up to closest byte to store all bits
             byte[] truncated = Arrays.copyOfRange(hash, 0, byteLen);
-            return new BigInteger(1, truncated).mod(BigInteger.ONE.shiftLeft(bits));
+            return new BigInteger(1, truncated).mod(BigInteger.ONE.shiftLeft(bits)); // Get N MSB of the digest
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
